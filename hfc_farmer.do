@@ -33,11 +33,11 @@ foreach package in mdesc nmissing veracrypt {
 	}
 	
 * Current directory 
-	cd "`DROPBOX'\Drum Seeder Project\01_data_and_codes\03_cleaning\output\05_prep" 
+	cd "`DROPBOX'/Drum Seeder Project/01_data_and_codes/03_cleaning/output/05_prep" 
 	local data "clean_farmer.dta" 
 
 * Setting locals for output folders (logs, reports, errors, etc.) 
-	local reports "`DROPBOX'\Drum Seeder Project\01_data_and_codes\05_monitoring\output\farmer" 	
+	local reports "`DROPBOX'/Drum Seeder Project/01_data_and_codes/05_monitoring/output/farmer" 	
 
 	//Using Data
 	use "`data'", clear
@@ -61,7 +61,7 @@ cap assert `r(miss)' == 0
 		di "`unique' has `r(miss)' missing values" 
 	}
 
-cap export excel `unique' `enum' a4_farmer_name survey_status starttime endtime key using "`reports'\unique_farmer.xlsx" if `unique' == "", firstrow(variables) replace
+cap export excel `unique' `enum' a4_farmer_name survey_status starttime endtime key using "`reports'/unique_farmer.xlsx" if `unique' == "", firstrow(variables) replace
 
 *--------------------------------------------------------------------------
 ** Duplicates in unique ID
@@ -70,7 +70,7 @@ sort `unique', stable
 qui by `unique': gen dup = cond(_N==1,0,_n) 
 	count if dup > 0 
 
-export excel `unique' `enum' resp_rel starttime dup survey_status consent p3_comments key using "`reports'\duplicates_farmer.xlsx" if dup > 0 & !missing(`unique'), firstrow(variables) replace
+export excel `unique' `enum' resp_rel starttime dup survey_status consent p3_comments key using "`reports'/duplicates_farmer.xlsx" if dup > 0 & !missing(`unique'), firstrow(variables) replace
 *isid `unique'  // This line should run successfully once all duplicates are fixed
 
 drop dup
@@ -88,18 +88,18 @@ sort `unique'
 
 ** Surveys that don't end on the same day as they started
 list `unique' starttime endtime if dofc(starttime) != dofc(endtime), sep(0)
-cap export excel surveyor_id unique_id starttime endtime using "`reports'\date_time_farmer.xlsx" if dofc(starttime) !=dofc(endtime), firstrow(variables)  sheet("Sheet 1") replace
+cap export excel surveyor_id unique_id starttime endtime using "`reports'/date_time_farmer.xlsx" if dofc(starttime) !=dofc(endtime), firstrow(variables)  sheet("Sheet 1") replace
 
 ** Surveys where end date/time is before start date/time
 list `unique' starttime endtime if dofc(starttime) > dofc(endtime), sep(0)
-cap export excel using "`reports'\date_time_farmer.xlsx" if dofc(starttime) > dofc(endtime), firstrow(variables) sheet("Sheet 2") replace
+cap export excel using "`reports'/date_time_farmer.xlsx" if dofc(starttime) > dofc(endtime), firstrow(variables) sheet("Sheet 2") replace
 
 list `unique' starttime endtime if Cofc(starttime) > Cofc(endtime) & dofc(starttime) == dofc(endtime), sep(0)
-cap export excel using "`reports'\date_time_farmer.xlsx" if Cofc(starttime) > Cofc(endtime) & dofc(starttime) == dofc(endtime), firstrow(variables) sheet("Sheet 3") replace
+cap export excel using "`reports'/date_time_farmer.xlsx" if Cofc(starttime) > Cofc(endtime) & dofc(starttime) == dofc(endtime), firstrow(variables) sheet("Sheet 3") replace
 
 ** Surveys that show starttime earlier than first day of data collection
 list `unique' starttime if dofc(starttime) < mdy(9, 05, 2023)
-cap export excel using "`reports'\date_time_farmer.xlsx" if dofc(starttime) < mdy(9, 05, 2023), firstrow(variables) sheet("Sheet 4") replace
+cap export excel using "`reports'/date_time_farmer.xlsx" if dofc(starttime) < mdy(9, 05, 2023), firstrow(variables) sheet("Sheet 4") replace
 
 *==========================================================================
 ***************************** Distributions *******************************
@@ -113,7 +113,7 @@ cap export excel using "`reports'\date_time_farmer.xlsx" if dofc(starttime) < md
 
 qui nmissing, min(*)  
 
-putexcel set "`reports'\missing_values.xlsx", sheet("All values missing") replace
+putexcel set "`reports'/missing_values.xlsx", sheet("All values missing") replace
 local i=2
 putexcel A1= ("Variables which have all values missing")
 foreach j of varlist `r(varlist)' { 
@@ -134,7 +134,7 @@ qui ds `w', not
 qui ds `x', has(type numeric)
 
 
-putexcel set  "`reports'\missing_values.xlsx", sheet("Missing values percentages_num") modify
+putexcel set  "`reports'/missing_values.xlsx", sheet("Missing values percentages_num") modify
 putexcel A1=("Displaying missing observations in numeric variables")
 putexcel A2=("Variable")
 putexcel B2= ("Percentage of missing observations")
@@ -164,7 +164,7 @@ qui ds `w', not
 
 ds `x', has(type numeric)
 
-putexcel set  "`reports'\missing_values.xlsx", sheet("Missing values percentages_num") modify
+putexcel set  "`reports'/missing_values.xlsx", sheet("Missing values percentages_num") modify
 putexcel A1=("Displaying missing observations in numeric variables")
 putexcel A2=("Variable")
 putexcel B2= ("Percentage of missing observations")
@@ -193,7 +193,7 @@ foreach var of varlist `x' {
 //Pay attention to variables with very few distinct values. 
 //Lack of variation in variables is an important flag to be raised and discussed with the PIs. 
 
-putexcel set  "`reports'\unique_values.xlsx", replace
+putexcel set  "`reports'/unique_values.xlsx", replace
 local i=1
 foreach var of varlist _all { 
 	qui ta `var' 
@@ -214,7 +214,7 @@ foreach var of varlist _all {
 *--------------------------------------------------------------------------
 
 qui ds, has(type numeric)
-putexcel set  "`reports'\specific_values_farmer.xlsx", sheet("999_num") modify
+putexcel set  "`reports'/specific_values_farmer.xlsx", sheet("999_num") modify
 local i=2
 putexcel A1= ("Variable")
 putexcel B1= ("Frequency of 999 value")
@@ -232,7 +232,7 @@ foreach var of varlist `r(varlist)' {
 }
  
 qui ds, has(type numeric)
-putexcel set  "`reports'\specific_values_farmer.xlsx", sheet("888_num") modify
+putexcel set  "`reports'/specific_values_farmer.xlsx", sheet("888_num") modify
 local i=2
 putexcel A1= ("Variable")
 putexcel B1= ("Frequency of 888 value")
@@ -250,7 +250,7 @@ foreach var of varlist `r(varlist)' {
 }
 
 qui ds, has(type numeric) 
-putexcel set  "`reports'\specific_values_farmer.xlsx", sheet("777_num") modify
+putexcel set  "`reports'/specific_values_farmer.xlsx", sheet("777_num") modify
 local i=2
 putexcel A1= ("Variable")
 putexcel B1= ("Frequency of 777 value")
@@ -269,7 +269,7 @@ foreach var of varlist `r(varlist)' {
    
 
 qui ds, has(type string)
-putexcel set  "`reports'\specific_values_farmer.xlsx", sheet("999_str") modify
+putexcel set  "`reports'/specific_values_farmer.xlsx", sheet("999_str") modify
 local i=2
 putexcel A1= ("Variable")
 putexcel B1= ("Frequency of 999 value")
@@ -287,7 +287,7 @@ foreach var of varlist `r(varlist)' {
 }
    
 qui ds, has(type string)
-putexcel set  "`reports'\specific_values_farmer.xlsx", sheet("888_str") modify
+putexcel set  "`reports'/specific_values_farmer.xlsx", sheet("888_str") modify
 local i=2
 putexcel A1= ("Variable")
 putexcel B1= ("Frequency of 888 value")
@@ -305,7 +305,7 @@ foreach var of varlist `r(varlist)' {
 }
    
 qui ds, has(type string)
-putexcel set  "`reports'\specific_values_farmer.xlsx", sheet("777_str") modify
+putexcel set  "`reports'/specific_values_farmer.xlsx", sheet("777_str") modify
 local i=2
 putexcel A1= ("Variable")
 putexcel B1= ("Frequency of 777 value")
@@ -339,7 +339,7 @@ qui sum duration_new, d
 
 di "Unusually short or long survey duration:" 
 list `unique' `enum' duration_new if abs(sds) > 2 & duration_new != . , abbr(32)	
-cap export excel `unique' `enum' duration_new starttime endtime  using "`reports'\duration_farmer.xlsx" if abs(sds) > 2 & duration_new != ., firstrow(variables) replace
+cap export excel `unique' `enum' duration_new starttime endtime  using "`reports'/duration_farmer.xlsx" if abs(sds) > 2 & duration_new != ., firstrow(variables) replace
 																	
 drop sds 
 
@@ -361,7 +361,7 @@ foreach var of varlist `dur_var'{
 }
 
 
-putexcel set  "`reports'\duration_section_wisefarmer.xlsx", replace
+putexcel set  "`reports'/duration_section_wisefarmer.xlsx", replace
 local num "1 2 3 4 5 6 7 8 9 10 11"
 putexcel A1= ("Detail")
 putexcel B1= ("Mean")
@@ -418,7 +418,7 @@ histogram survey_date, freq discrete fcolor(emidblue) width(1) lw(none) lc(white
 	// Using just the first line -- histogram surveydate, freq -- will also produce a graph. The remaining part of the code is 
 	// for formatting. Refer to graph twoway options in help to understand formatting. 
 
-graph export "`reports'\productivity.jpg", as(jpg) name("Graph") quality(90) replace
+graph export "`reports'/productivity.jpg", as(jpg) name("Graph") quality(90) replace
 
 /*==========================================================================
 SECTION: QUESTIONNAIRE SPECIFIC HFCs
@@ -426,35 +426,35 @@ SECTION: QUESTIONNAIRE SPECIFIC HFCs
 
 // Control GPs where the respondent reported they received the drum seeder 
 destring panchayatid, replace 
-merge m:1 panchayatid using "`input'\prefill_aeo.dta"
+merge m:1 panchayatid using "`input'/prefill_aeo.dta"
 
 keep if _merge!=2 
 drop surveyid_str
 
-cap export excel surveyor_id unique_id team_id survey_date key using "`reports'\controlreceiveddrumseeder_farmer.xlsx" if gp_recv_lst_rabi==1 &treat_group=="No Rentals", firstrow(variables) replace
+cap export excel surveyor_id unique_id team_id survey_date key using "`reports'/controlreceiveddrumseeder_farmer.xlsx" if gp_recv_lst_rabi==1 &treat_group=="No Rentals", firstrow(variables) replace
 
 // barrier1 should not be equal to barrier2
-export excel surveyor_id unique_id survey_date team_id key using "`reports'\barrier_same_farmer.xlsx" if barrier1==barrier2, firstrow(variables) replace 
+export excel surveyor_id unique_id survey_date team_id key using "`reports'/barrier_same_farmer.xlsx" if barrier1==barrier2, firstrow(variables) replace 
 
 //Not heard of drum seeder and knows farmers who have used drumseeder 
-export excel surveyor_id unique_id team_id survey_date key using "`reports'\not_heard_ds_knows_farmers_used_ds.xlsx" if [num_dum!=0 | !missing(num_dum)] & drum_exp ==5, firstrow(variables) replace
+export excel surveyor_id unique_id team_id survey_date key using "`reports'/not_heard_ds_knows_farmers_used_ds.xlsx" if [num_dum!=0 | !missing(num_dum)] & drum_exp ==5, firstrow(variables) replace
 
 //If they spoke at last gram sabha meeting but did not attend last gram sabh meeting
-cap export excel surveyor_id unique_id survey_date team_id key using "`reports'\spoken_at_last_gp_but_didn't_attend.xlsx" if b4_speak_metng_gp==1 & b3_lst_gram_sabh_metng==2, firstrow(variables) replace
+cap export excel surveyor_id unique_id survey_date team_id key using "`reports'/spoken_at_last_gp_but_didn't_attend.xlsx" if b4_speak_metng_gp==1 & b3_lst_gram_sabh_metng==2, firstrow(variables) replace
 
 *--------------------------------------------------------------------------
 ** Individual randomisation and drum seeding 
 *--------------------------------------------------------------------------
 
 * appending individual randomisation files 
-import delimited "`prefill_input'\treat_assignment.csv", clear 
-save "`prefill_input'\treat_assignment.dta", replace
-import delimited "`prefill_input'\treat_assignment2.xlsx - Sheet1.csv", clear
-save "`prefill_input'\treat_assignment2.dta", replace
-import delimited "`prefill_input'\treat_assignment3.xlsx - Sheet1.csv",  clear
-save "`prefill_input'\treat_assignment3.dta", replace
+import delimited "`prefill_input'/treat_assignment.csv", clear 
+save "`prefill_input'/treat_assignment.dta", replace
+import delimited "`prefill_input'/treat_assignment2.xlsx - Sheet1.csv", clear
+save "`prefill_input'/treat_assignment2.dta", replace
+import delimited "`prefill_input'/treat_assignment3.xlsx - Sheet1.csv",  clear
+save "`prefill_input'/treat_assignment3.dta", replace
 
-append using "`prefill_input'\treat_assignment2.dta", force
-append using "`prefill_input'\treat_assignment.dta", force
+append using "`prefill_input'/treat_assignment2.dta", force
+append using "`prefill_input'/treat_assignment.dta", force
 rename ppbno unique_id
-save "`prefill_input'\treat_assignment_appended.dta", replace
+save "`prefill_input'/treat_assignment_appended.dta", replace
